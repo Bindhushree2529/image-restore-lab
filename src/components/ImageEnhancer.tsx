@@ -129,7 +129,7 @@ export const ImageEnhancer: React.FC<ImageEnhancerProps> = () => {
     try {
       toast({
         title: "Processing started",
-        description: "Enhancing your image with AI...",
+        description: "Enhancing your image for maximum clarity...",
       });
 
       // Create image element from original
@@ -137,8 +137,8 @@ export const ImageEnhancer: React.FC<ImageEnhancerProps> = () => {
       img.crossOrigin = 'anonymous';
       
       await new Promise((resolve, reject) => {
-        img.onload = resolve;
-        img.onerror = reject;
+        img.onload = resolve as () => void;
+        img.onerror = reject as (ev: string | Event) => void;
         img.src = originalImage;
       });
 
@@ -146,31 +146,70 @@ export const ImageEnhancer: React.FC<ImageEnhancerProps> = () => {
 
       // Check if image is too large and resize if needed
       let processedImageSrc = originalImage;
-      if (img.width > 1024 || img.height > 1024) {
-        console.log('Image too large, resizing...');
-        processedImageSrc = await resizeImageIfNeeded(img, 1024);
-        
-        // Create new image element for the resized image
-        const resizedImg = new Image();
-        await new Promise((resolve, reject) => {
-          resizedImg.onload = resolve;
-          resizedImg.onerror = reject;
-          resizedImg.src = processedImageSrc;
-        });
-        img.src = processedImageSrc;
-        img.width = resizedImg.width;
-        img.height = resizedImg.height;
+      if (img.width > 1280 || img.height > 1280) {
+        console.log('Image too large, resizing to safe dimension...');
+        processedImageSrc = await resizeImageIfNeeded(img, 1280);
       }
 
-      // Use canvas-based enhancement (more reliable than AI models for now)
-      console.log('Applying canvas-based enhancement...');
+      // Try AI Upscaling first (ESRGAN Slim, fast & browser-friendly)
+      try {
+        const UpscalerModule = await import('@upscalerjs/core');
+        const ESRGANModule = await import('@upscalerjs/esrgan-slim');
+
+        // Lazy import TFJS backend only when needed
+        await import('@tensorflow/tfjs');
+
+        const UpscalerCtor: any = (UpscalerModule as any).default || (UpscalerModule as any).Upscaler;
+        const ESRGANModel: any = (ESRGANModule as any).default || (ESRGANModule as any).model || ESRGANModule;
+
+        const upscaler = new UpscalerCtor({
+          model: ESRGANModel,
+        });
+
+        console.log('Running AI upscaler (ESRGAN Slim)...');
+        const upscaled = await upscaler.upscale(processedImageSrc as any, {
+          output: 'base64',
+          patchSize: 128,
+          padding: 8,
+          progress: (progress: any) => {
+            // Optional: could update a progress bar here
+            // console.log('Upscale progress', progress);
+          },
+        } as any);
+
+        if (typeof upscaled === 'string') {
+          setEnhancedImage(upscaled);
+        } else if ((upscaled as any) instanceof HTMLImageElement) {
+          // Convert to data URL via canvas
+          const tmp = upscaled as HTMLImageElement;
+          const c = document.createElement('canvas');
+          c.width = tmp.width; c.height = tmp.height;
+          const cx = c.getContext('2d');
+          cx?.drawImage(tmp, 0, 0);
+          setEnhancedImage(c.toDataURL('image/png', 1.0));
+        } else {
+          // Fallback to canvas enhancement
+          const enhancedResult = await enhanceImageCanvas(img);
+          setEnhancedImage(enhancedResult);
+        }
+
+        toast({
+          title: "Enhancement complete!",
+          description: "AI upscaling applied for crisper details.",
+        });
+        return; // Done successfully
+      } catch (aiErr) {
+        console.warn('AI Upscaler failed, falling back to canvas enhancement.', aiErr);
+      }
+
+      // Fallback: Canvas-based enhancement
+      console.log('Applying canvas-based enhancement fallback...');
       const enhancedResult = await enhanceImageCanvas(img);
-      
       setEnhancedImage(enhancedResult);
 
       toast({
         title: "Enhancement complete!",
-        description: "Your image has been successfully enhanced with 2x resolution and improved quality.",
+        description: "Image enhanced successfully.",
       });
     } catch (error) {
       console.error('Enhancement error:', error);
@@ -184,7 +223,6 @@ export const ImageEnhancer: React.FC<ImageEnhancerProps> = () => {
       setIsProcessing(false);
     }
   };
-
   const downloadImage = () => {
     if (!enhancedImage) return;
 
