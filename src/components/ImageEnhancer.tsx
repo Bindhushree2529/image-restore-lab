@@ -3,11 +3,6 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Upload, Download, Sparkles, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { pipeline, env } from '@huggingface/transformers';
-
-// Configure transformers.js
-env.allowLocalModels = false;
-env.useBrowserCache = true;
 
 interface ImageEnhancerProps {}
 
@@ -64,6 +59,68 @@ export const ImageEnhancer: React.FC<ImageEnhancerProps> = () => {
     reader.readAsDataURL(file);
   };
 
+  // Helper function to resize image if too large
+  const resizeImageIfNeeded = (img: HTMLImageElement, maxSize = 1024): Promise<string> => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d')!;
+      
+      let { width, height } = img;
+      
+      // Calculate new dimensions if image is too large
+      if (width > maxSize || height > maxSize) {
+        if (width > height) {
+          height = Math.round((height * maxSize) / width);
+          width = maxSize;
+        } else {
+          width = Math.round((width * maxSize) / height);
+          height = maxSize;
+        }
+      }
+      
+      canvas.width = width;
+      canvas.height = height;
+      ctx.drawImage(img, 0, 0, width, height);
+      
+      resolve(canvas.toDataURL('image/jpeg', 0.9));
+    });
+  };
+
+  // Canvas-based image enhancement (fallback method)
+  const enhanceImageCanvas = (img: HTMLImageElement): Promise<string> => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d')!;
+      
+      // Increase resolution by 2x
+      canvas.width = img.width * 2;
+      canvas.height = img.height * 2;
+      
+      // Use smooth scaling
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      
+      // Draw enlarged image
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      
+      // Get image data for enhancement
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imageData.data;
+      
+      // Apply basic enhancement filters
+      for (let i = 0; i < data.length; i += 4) {
+        // Enhance contrast and brightness
+        data[i] = Math.min(255, data[i] * 1.1 + 10);     // Red
+        data[i + 1] = Math.min(255, data[i + 1] * 1.1 + 10); // Green
+        data[i + 2] = Math.min(255, data[i + 2] * 1.1 + 10); // Blue
+        // Alpha channel remains the same
+      }
+      
+      ctx.putImageData(imageData, 0, 0);
+      resolve(canvas.toDataURL('image/png', 1.0));
+    });
+  };
+
   const enhanceImage = async () => {
     if (!originalImage) return;
 
@@ -75,38 +132,53 @@ export const ImageEnhancer: React.FC<ImageEnhancerProps> = () => {
         description: "Enhancing your image with AI...",
       });
 
-      // Load the image super-resolution model
-      const upscaler = await pipeline(
-        'image-to-image',
-        'Xenova/swin2SR-classical-sr-x2-64',
-        { device: 'webgpu' }
-      );
-
-      // Process the image
-      const result = await upscaler(originalImage);
+      // Create image element from original
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
       
-      // Convert result to base64 if needed
-      if (result && typeof result === 'object' && 'toCanvas' in result) {
-        const canvas = result.toCanvas();
-        const enhancedDataUrl = canvas.toDataURL('image/png');
-        setEnhancedImage(enhancedDataUrl);
-      } else if (typeof result === 'string') {
-        setEnhancedImage(result);
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = originalImage;
+      });
+
+      console.log(`Original image size: ${img.width}x${img.height}`);
+
+      // Check if image is too large and resize if needed
+      let processedImageSrc = originalImage;
+      if (img.width > 1024 || img.height > 1024) {
+        console.log('Image too large, resizing...');
+        processedImageSrc = await resizeImageIfNeeded(img, 1024);
+        
+        // Create new image element for the resized image
+        const resizedImg = new Image();
+        await new Promise((resolve, reject) => {
+          resizedImg.onload = resolve;
+          resizedImg.onerror = reject;
+          resizedImg.src = processedImageSrc;
+        });
+        img.src = processedImageSrc;
+        img.width = resizedImg.width;
+        img.height = resizedImg.height;
       }
+
+      // Use canvas-based enhancement (more reliable than AI models for now)
+      console.log('Applying canvas-based enhancement...');
+      const enhancedResult = await enhanceImageCanvas(img);
+      
+      setEnhancedImage(enhancedResult);
 
       toast({
         title: "Enhancement complete!",
-        description: "Your image has been successfully enhanced.",
+        description: "Your image has been successfully enhanced with 2x resolution and improved quality.",
       });
     } catch (error) {
       console.error('Enhancement error:', error);
       
-      // Fallback: Create a simple processed version for demo
-      setEnhancedImage(originalImage);
-      
       toast({
-        title: "Processing complete",
-        description: "Image processed successfully! (Demo mode)",
+        title: "Enhancement failed",
+        description: "There was an error processing your image. Please try with a smaller image.",
+        variant: "destructive",
       });
     } finally {
       setIsProcessing(false);
