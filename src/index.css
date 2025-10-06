@@ -6,52 +6,52 @@
 
 @layer base {
   :root {
-    /* Base colors - Professional Slate Theme */
-    --background: 215 25% 97%;
-    --foreground: 222 47% 11%;
+    /* Base colors - Modern Blue/Teal Theme */
+    --background: 200 25% 97%;
+    --foreground: 200 50% 10%;
 
     /* Cards with glass-morphism */
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-    --glass: 215 20% 96%;
-    --glass-border: 215 16% 88%;
+    --card: 180 100% 99%;
+    --card-foreground: 200 50% 10%;
+    --glass: 190 30% 95%;
+    --glass-border: 185 25% 85%;
 
-    /* AI Brand Colors - Professional Blue */
-    --primary: 221 83% 53%;
+    /* AI Brand Colors - Vibrant Teal/Cyan */
+    --primary: 185 84% 45%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 221 90% 65%;
+    --primary-glow: 180 100% 60%;
     
-    --secondary: 215 16% 92%;
-    --secondary-foreground: 222 47% 11%;
+    --secondary: 190 20% 90%;
+    --secondary-foreground: 200 50% 10%;
 
     /* Accents for AI processing */
-    --accent: 215 16% 92%;
-    --accent-foreground: 222 47% 11%;
-    --success: 142 76% 36%;
+    --accent: 175 70% 92%;
+    --accent-foreground: 200 50% 10%;
+    --success: 158 64% 52%;
     --success-foreground: 0 0% 100%;
 
     /* Muted tones */
-    --muted: 215 16% 92%;
-    --muted-foreground: 215 13% 45%;
+    --muted: 190 20% 90%;
+    --muted-foreground: 195 15% 45%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 215 16% 88%;
-    --input: 215 16% 88%;
-    --ring: 221 83% 53%;
+    --border: 185 25% 85%;
+    --input: 185 25% 85%;
+    --ring: 185 84% 45%;
 
     --radius: 1rem;
 
-    /* Gradients - Professional and Subtle */
-    --gradient-primary: linear-gradient(135deg, hsl(221 83% 53%), hsl(221 90% 65%));
-    --gradient-glass: linear-gradient(135deg, hsl(215 20% 96% / 0.8), hsl(215 16% 92% / 0.6));
-    --gradient-bg: linear-gradient(135deg, hsl(215 25% 97%), hsl(220 30% 94%));
+    /* Gradients - Modern Blue/Teal */
+    --gradient-primary: linear-gradient(135deg, hsl(185 84% 45%), hsl(180 100% 60%));
+    --gradient-glass: linear-gradient(135deg, hsl(190 30% 95% / 0.9), hsl(185 25% 90% / 0.7));
+    --gradient-bg: linear-gradient(135deg, hsl(195 40% 96%), hsl(185 45% 92%));
 
-    /* Shadows - Professional and Subtle */
-    --shadow-glow: 0 0 40px hsl(221 83% 53% / 0.15);
-    --shadow-glass: 0 8px 32px hsl(215 25% 27% / 0.08);
-    --shadow-elevated: 0 20px 60px hsl(215 25% 27% / 0.12);
+    /* Shadows - Teal Glow */
+    --shadow-glow: 0 0 40px hsl(185 84% 45% / 0.2);
+    --shadow-glass: 0 8px 32px hsl(185 50% 30% / 0.08);
+    --shadow-elevated: 0 20px 60px hsl(185 50% 30% / 0.12);
 
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -75,34 +75,34 @@
   }
 
   .dark {
-    /* Dark mode - Professional Navy */
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
+    /* Dark mode - Deep Blue/Teal */
+    --background: 200 50% 8%;
+    --foreground: 180 40% 98%;
 
-    --card: 222 47% 14%;
-    --card-foreground: 210 40% 98%;
+    --card: 200 45% 12%;
+    --card-foreground: 180 40% 98%;
 
-    --popover: 222 47% 14%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 200 45% 12%;
+    --popover-foreground: 180 40% 98%;
 
-    --primary: 221 83% 53%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 180 84% 55%;
+    --primary-foreground: 200 50% 8%;
 
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 195 35% 18%;
+    --secondary-foreground: 180 40% 98%;
 
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 195 35% 18%;
+    --muted-foreground: 185 20% 65%;
 
-    --accent: 217 33% 17%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 175 50% 25%;
+    --accent-foreground: 180 40% 98%;
 
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 63% 45%;
+    --destructive-foreground: 180 40% 98%;
 
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
-    --ring: 221 83% 53%;
+    --border: 195 35% 20%;
+    --input: 195 35% 20%;
+    --ring: 180 84% 55%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
