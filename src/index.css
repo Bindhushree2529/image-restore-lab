@@ -6,52 +6,52 @@
 
 @layer base {
   :root {
-    /* Base colors */
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
+    /* Base colors - Professional Slate Theme */
+    --background: 215 25% 97%;
+    --foreground: 222 47% 11%;
 
     /* Cards with glass-morphism */
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --glass: 240 5% 6%;
-    --glass-border: 240 3.7% 15.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --glass: 215 20% 96%;
+    --glass-border: 215 16% 88%;
 
-    /* AI Brand Colors - Deep Blue to Purple */
-    --primary: 250 84% 54%;
-    --primary-foreground: 0 0% 98%;
-    --primary-glow: 250 100% 70%;
+    /* AI Brand Colors - Professional Blue */
+    --primary: 221 83% 53%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 221 90% 65%;
     
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 215 16% 92%;
+    --secondary-foreground: 222 47% 11%;
 
     /* Accents for AI processing */
-    --accent: 280 100% 70%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 215 16% 92%;
+    --accent-foreground: 222 47% 11%;
     --success: 142 76% 36%;
-    --success-foreground: 0 0% 98%;
+    --success-foreground: 0 0% 100%;
 
     /* Muted tones */
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
+    --muted: 215 16% 92%;
+    --muted-foreground: 215 13% 45%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 250 84% 54%;
+    --border: 215 16% 88%;
+    --input: 215 16% 88%;
+    --ring: 221 83% 53%;
 
     --radius: 1rem;
 
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(250 84% 54%), hsl(280 100% 70%));
-    --gradient-glass: linear-gradient(135deg, hsl(240 5% 6% / 0.8), hsl(240 3.7% 15.9% / 0.6));
-    --gradient-bg: linear-gradient(135deg, hsl(240 10% 3.9%), hsl(250 15% 8%));
+    /* Gradients - Professional and Subtle */
+    --gradient-primary: linear-gradient(135deg, hsl(221 83% 53%), hsl(221 90% 65%));
+    --gradient-glass: linear-gradient(135deg, hsl(215 20% 96% / 0.8), hsl(215 16% 92% / 0.6));
+    --gradient-bg: linear-gradient(135deg, hsl(215 25% 97%), hsl(220 30% 94%));
 
-    /* Shadows */
-    --shadow-glow: 0 0 40px hsl(250 84% 54% / 0.3);
-    --shadow-glass: 0 8px 32px hsl(0 0% 0% / 0.2);
-    --shadow-elevated: 0 20px 60px hsl(0 0% 0% / 0.4);
+    /* Shadows - Professional and Subtle */
+    --shadow-glow: 0 0 40px hsl(221 83% 53% / 0.15);
+    --shadow-glass: 0 8px 32px hsl(215 25% 27% / 0.08);
+    --shadow-elevated: 0 20px 60px hsl(215 25% 27% / 0.12);
 
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -75,33 +75,34 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
+    /* Dark mode - Professional Navy */
+    --background: 222 47% 11%;
     --foreground: 210 40% 98%;
 
-    --card: 222.2 84% 4.9%;
+    --card: 222 47% 14%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 222.2 84% 4.9%;
+    --popover: 222 47% 14%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 221 83% 53%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 217.2 32.6% 17.5%;
+    --secondary: 217 33% 17%;
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
 
-    --accent: 217.2 32.6% 17.5%;
+    --accent: 217 33% 17%;
     --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 63% 31%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 221 83% 53%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
