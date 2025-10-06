@@ -1,10 +1,14 @@
 import { ImageEnhancer } from '@/components/ImageEnhancer';
+import { Header } from '@/components/Header';
 
 const Index = () => {
   return (
-    <main className="min-h-screen py-12">
-      <ImageEnhancer />
-    </main>
+    <div className="min-h-screen">
+      <Header />
+      <main className="py-12">
+        <ImageEnhancer />
+      </main>
+    </div>
   );
 };
 
