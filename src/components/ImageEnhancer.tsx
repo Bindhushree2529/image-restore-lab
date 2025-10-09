@@ -59,67 +59,6 @@ export const ImageEnhancer: React.FC<ImageEnhancerProps> = () => {
     reader.readAsDataURL(file);
   };
 
-  // Helper function to resize image if too large
-  const resizeImageIfNeeded = (img: HTMLImageElement, maxSize = 1024): Promise<string> => {
-    return new Promise((resolve) => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d')!;
-      
-      let { width, height } = img;
-      
-      // Calculate new dimensions if image is too large
-      if (width > maxSize || height > maxSize) {
-        if (width > height) {
-          height = Math.round((height * maxSize) / width);
-          width = maxSize;
-        } else {
-          width = Math.round((width * maxSize) / height);
-          height = maxSize;
-        }
-      }
-      
-      canvas.width = width;
-      canvas.height = height;
-      ctx.drawImage(img, 0, 0, width, height);
-      
-      resolve(canvas.toDataURL('image/jpeg', 0.9));
-    });
-  };
-
-  // Canvas-based image enhancement (fallback method)
-  const enhanceImageCanvas = (img: HTMLImageElement): Promise<string> => {
-    return new Promise((resolve) => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d')!;
-      
-      // Increase resolution by 2x
-      canvas.width = img.width * 2;
-      canvas.height = img.height * 2;
-      
-      // Use smooth scaling
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = 'high';
-      
-      // Draw enlarged image
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      
-      // Get image data for enhancement
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const data = imageData.data;
-      
-      // Apply basic enhancement filters
-      for (let i = 0; i < data.length; i += 4) {
-        // Enhance contrast and brightness
-        data[i] = Math.min(255, data[i] * 1.1 + 10);     // Red
-        data[i + 1] = Math.min(255, data[i + 1] * 1.1 + 10); // Green
-        data[i + 2] = Math.min(255, data[i + 2] * 1.1 + 10); // Blue
-        // Alpha channel remains the same
-      }
-      
-      ctx.putImageData(imageData, 0, 0);
-      resolve(canvas.toDataURL('image/png', 1.0));
-    });
-  };
 
   const enhanceImage = async () => {
     if (!originalImage) return;
@@ -128,95 +67,39 @@ export const ImageEnhancer: React.FC<ImageEnhancerProps> = () => {
     
     try {
       toast({
-        title: "Processing started",
-        description: "Enhancing your image for maximum clarity...",
+        title: "AI Enhancement started",
+        description: "Our AI is enhancing your image to maximum clarity...",
       });
 
-      // Create image element from original
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
+      const ENHANCE_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/enhance-image`;
       
-      await new Promise((resolve, reject) => {
-        img.onload = resolve as () => void;
-        img.onerror = reject as (ev: string | Event) => void;
-        img.src = originalImage;
+      const response = await fetch(ENHANCE_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ imageUrl: originalImage }),
       });
 
-      console.log(`Original image size: ${img.width}x${img.height}`);
-
-      // Check if image is too large and resize if needed
-      let processedImageSrc = originalImage;
-      if (img.width > 1280 || img.height > 1280) {
-        console.log('Image too large, resizing to safe dimension...');
-        processedImageSrc = await resizeImageIfNeeded(img, 1280);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to enhance image");
       }
 
-      // Try AI Upscaling first (ESRGAN Slim, fast & browser-friendly)
-      try {
-        const UpscalerModule = await import('@upscalerjs/core');
-        const ESRGANModule = await import('@upscalerjs/esrgan-slim');
-
-        // Lazy import TFJS backend only when needed
-        await import('@tensorflow/tfjs');
-
-        const UpscalerCtor: any = (UpscalerModule as any).default || (UpscalerModule as any).Upscaler;
-        const ESRGANModel: any = (ESRGANModule as any).default || (ESRGANModule as any).model || ESRGANModule;
-
-        const upscaler = new UpscalerCtor({
-          model: ESRGANModel,
-        });
-
-        console.log('Running AI upscaler (ESRGAN Slim)...');
-        const upscaled = await upscaler.upscale(processedImageSrc as any, {
-          output: 'base64',
-          patchSize: 128,
-          padding: 8,
-          progress: (progress: any) => {
-            // Optional: could update a progress bar here
-            // console.log('Upscale progress', progress);
-          },
-        } as any);
-
-        if (typeof upscaled === 'string') {
-          setEnhancedImage(upscaled);
-        } else if ((upscaled as any) instanceof HTMLImageElement) {
-          // Convert to data URL via canvas
-          const tmp = upscaled as HTMLImageElement;
-          const c = document.createElement('canvas');
-          c.width = tmp.width; c.height = tmp.height;
-          const cx = c.getContext('2d');
-          cx?.drawImage(tmp, 0, 0);
-          setEnhancedImage(c.toDataURL('image/png', 1.0));
-        } else {
-          // Fallback to canvas enhancement
-          const enhancedResult = await enhanceImageCanvas(img);
-          setEnhancedImage(enhancedResult);
-        }
-
-        toast({
-          title: "Enhancement complete!",
-          description: "AI upscaling applied for crisper details.",
-        });
-        return; // Done successfully
-      } catch (aiErr) {
-        console.warn('AI Upscaler failed, falling back to canvas enhancement.', aiErr);
-      }
-
-      // Fallback: Canvas-based enhancement
-      console.log('Applying canvas-based enhancement fallback...');
-      const enhancedResult = await enhanceImageCanvas(img);
-      setEnhancedImage(enhancedResult);
+      const { enhancedImageUrl } = await response.json();
+      setEnhancedImage(enhancedImageUrl);
 
       toast({
         title: "Enhancement complete!",
-        description: "Image enhanced successfully.",
+        description: "Your image has been enhanced with AI to maximum clarity.",
       });
     } catch (error) {
       console.error('Enhancement error:', error);
       
       toast({
         title: "Enhancement failed",
-        description: "There was an error processing your image. Please try with a smaller image.",
+        description: error instanceof Error ? error.message : "There was an error processing your image.",
         variant: "destructive",
       });
     } finally {
