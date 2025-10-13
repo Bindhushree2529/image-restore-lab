@@ -1,10 +1,10 @@
 import { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Upload, Download, Sparkles, Loader2, Palette, Eraser, ArrowUpCircle, Focus, Sun } from 'lucide-react';
+import { Upload, Download, Sparkles, Loader2, Palette, Eraser, ArrowUpCircle, Focus, Sun, Hammer } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-type Operation = 'enhance' | 'colorize' | 'removebg' | 'upscale' | 'denoise' | 'sharpen' | 'brighten';
+type Operation = 'enhance' | 'colorize' | 'removebg' | 'upscale' | 'denoise' | 'sharpen' | 'brighten' | 'removecrack';
 
 interface ImageEnhancerProps {}
 
@@ -77,7 +77,8 @@ export const ImageEnhancer: React.FC<ImageEnhancerProps> = () => {
         upscale: "Upscaling",
         denoise: "Denoising",
         sharpen: "Sharpening",
-        brighten: "Brightening"
+        brighten: "Brightening",
+        removecrack: "Crack Removal"
       };
 
       toast({
@@ -129,6 +130,7 @@ export const ImageEnhancer: React.FC<ImageEnhancerProps> = () => {
     { id: 'denoise' as Operation, label: 'Denoise', icon: Sparkles, description: 'Remove noise' },
     { id: 'sharpen' as Operation, label: 'Sharpen', icon: Focus, description: 'Increase sharpness' },
     { id: 'brighten' as Operation, label: 'Brighten', icon: Sun, description: 'Improve lighting' },
+    { id: 'removecrack' as Operation, label: 'Fix Cracks', icon: Hammer, description: 'Remove damage' },
   ];
   const downloadImage = () => {
     if (!enhancedImage) return;
@@ -147,52 +149,62 @@ export const ImageEnhancer: React.FC<ImageEnhancerProps> = () => {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8">
-      {/* Header */}
-      <div className="text-center space-y-3 sm:space-y-4">
-        <div className="flex items-center justify-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-          <Sparkles className="h-6 w-6 sm:h-8 sm:w-8 text-primary glow-effect" />
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            AI Image Processor
-          </h1>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+      <div className="w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8">
+        {/* Header */}
+        <div className="text-center space-y-4 sm:space-y-6 py-6 sm:py-8">
+          <div className="inline-flex items-center justify-center gap-3 sm:gap-4 px-6 py-3 rounded-full bg-primary/10 backdrop-blur-sm border border-primary/20">
+            <Sparkles className="h-6 w-6 sm:h-8 sm:w-8 text-primary animate-pulse" />
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+              AI Image Processor
+            </h1>
+            <Sparkles className="h-6 w-6 sm:h-8 sm:w-8 text-accent animate-pulse" />
+          </div>
+          <p className="text-sm sm:text-base md:text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto px-4 leading-relaxed">
+            Transform your images with cutting-edge AI technology. Enhance, colorize, restore, and more - all in one powerful platform.
+          </p>
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-3 text-xs sm:text-sm text-muted-foreground">
+            <span className="px-3 py-1 rounded-full bg-primary/5 border border-primary/10">✨ AI-Powered</span>
+            <span className="px-3 py-1 rounded-full bg-primary/5 border border-primary/10">🚀 Fast Processing</span>
+            <span className="px-3 py-1 rounded-full bg-primary/5 border border-primary/10">🎨 9 Tools</span>
+          </div>
         </div>
-        <p className="text-sm sm:text-base md:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
-          Upload your image and transform it with professional AI-powered tools
-        </p>
-      </div>
 
-      {/* Upload Area */}
-      {!originalImage && (
-        <Card className="glass-card p-6 sm:p-8 md:p-12 transition-smooth hover:scale-[1.01] sm:hover:scale-[1.02]">
-          <div
-            className={`border-2 border-dashed rounded-xl p-6 sm:p-8 md:p-12 text-center transition-smooth ${
-              dragActive 
-                ? 'border-primary bg-primary/10 glow-effect' 
-                : 'border-glass-border hover:border-primary/50'
-            }`}
+        {/* Upload Area */}
+        {!originalImage && (
+          <Card className="glass-card p-6 sm:p-8 md:p-12 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/20 hover:scale-[1.01]">
+            <div
+              className={`border-2 border-dashed rounded-2xl p-8 sm:p-10 md:p-16 text-center transition-all duration-300 ${
+                dragActive 
+                  ? 'border-primary bg-primary/20 shadow-lg shadow-primary/30 scale-105' 
+                  : 'border-primary/30 hover:border-primary/60 hover:bg-primary/5'
+              }`}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
             onDragOver={handleDrag}
             onDrop={handleDrop}
           >
-            <Upload className="h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 mx-auto mb-4 sm:mb-6 text-muted-foreground" />
-            <div className="space-y-3 sm:space-y-4">
-              <h3 className="text-lg sm:text-xl md:text-2xl font-semibold">Drop your image here</h3>
-              <p className="text-sm sm:text-base text-muted-foreground">
-                Support JPG, PNG, WEBP files up to 10MB
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
-                <Button 
-                  variant="default" 
-                  size="lg"
-                  className="w-full sm:w-auto bg-gradient-to-r from-primary to-accent glow-effect transition-bounce hover:scale-105"
-                  onClick={() => document.getElementById('file-input')?.click()}
-                >
-                  Choose File
-                </Button>
-                <span className="text-sm text-muted-foreground">or drag and drop</span>
+              <Upload className="h-16 w-16 sm:h-18 sm:w-18 md:h-20 md:w-20 mx-auto mb-6 sm:mb-8 text-primary animate-bounce" />
+              <div className="space-y-4 sm:space-y-6">
+                <h3 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                  Drop your image here
+                </h3>
+                <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-md mx-auto">
+                  Support JPG, PNG, WEBP formats • Maximum 10MB
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center pt-4">
+                  <Button 
+                    variant="default" 
+                    size="lg"
+                    className="w-full sm:w-auto text-base sm:text-lg px-8 py-6 bg-gradient-to-r from-primary via-accent to-primary bg-size-200 hover:bg-pos-100 transition-all duration-500 shadow-lg hover:shadow-xl hover:shadow-primary/50 hover:scale-110"
+                    onClick={() => document.getElementById('file-input')?.click()}
+                  >
+                    <Upload className="h-5 w-5 mr-2" />
+                    Choose File
+                  </Button>
+                  <span className="text-sm sm:text-base text-muted-foreground font-medium">or drag and drop</span>
+                </div>
               </div>
-            </div>
             <input
               id="file-input"
               type="file"
@@ -200,115 +212,150 @@ export const ImageEnhancer: React.FC<ImageEnhancerProps> = () => {
               onChange={handleFileInput}
               className="hidden"
             />
-          </div>
-        </Card>
-      )}
+            </div>
+          </Card>
+        )}
 
-      {/* Image Comparison */}
-      {originalImage && (
-        <div className="space-y-4 sm:space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-            {/* Original Image */}
-            <Card className="glass-card p-4 sm:p-6 space-y-3 sm:space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-base sm:text-lg md:text-xl font-semibold">Original</h3>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setOriginalImage(null);
-                    setEnhancedImage(null);
-                    setSelectedOperation('enhance');
-                  }}
-                  className="text-xs sm:text-sm"
-                >
-                  Upload New
-                </Button>
-              </div>
-              <div className="aspect-square rounded-lg overflow-hidden bg-muted">
-                <img
-                  src={originalImage}
-                  alt="Original"
-                  className="w-full h-full object-contain"
-                />
-              </div>
-            </Card>
-
-            {/* Processed Image */}
-            <Card className="glass-card p-4 sm:p-6 space-y-3 sm:space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-base sm:text-lg md:text-xl font-semibold">Processed</h3>
-                {enhancedImage && (
+        {/* Image Comparison */}
+        {originalImage && (
+          <div className="space-y-6 sm:space-y-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+              {/* Original Image */}
+              <Card className="glass-card p-5 sm:p-7 space-y-4 sm:space-y-5 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10">
+                <div className="flex items-center justify-between border-b border-border/50 pb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse"></div>
+                    <h3 className="text-base sm:text-lg md:text-xl font-bold">Original Image</h3>
+                  </div>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={downloadImage}
-                    className="glow-effect text-xs sm:text-sm"
+                    onClick={() => {
+                      setOriginalImage(null);
+                      setEnhancedImage(null);
+                      setSelectedOperation('enhance');
+                    }}
+                    className="text-xs sm:text-sm hover:bg-destructive hover:text-destructive-foreground transition-colors"
                   >
-                    <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                    Download
+                    <Upload className="h-3 w-3 mr-1" />
+                    Upload New
                   </Button>
-                )}
-              </div>
-              <div className="aspect-square rounded-lg overflow-hidden bg-muted flex items-center justify-center">
-                {enhancedImage ? (
+                </div>
+                <div className="aspect-square rounded-xl overflow-hidden bg-gradient-to-br from-muted to-muted/50 border-2 border-border/50 shadow-inner">
                   <img
-                    src={enhancedImage}
-                    alt="Processed"
-                    className="w-full h-full object-contain"
+                    src={originalImage}
+                    alt="Original"
+                    className="w-full h-full object-contain hover:scale-105 transition-transform duration-300"
                   />
-                ) : (
-                  <div className="text-center space-y-3 sm:space-y-4 p-4">
-                    <Sparkles className="h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12 mx-auto text-muted-foreground" />
-                    <p className="text-xs sm:text-sm md:text-base text-muted-foreground">
-                      Select an operation below
+                </div>
+              </Card>
+
+              {/* Processed Image */}
+              <Card className="glass-card p-5 sm:p-7 space-y-4 sm:space-y-5 transition-all duration-300 hover:shadow-xl hover:shadow-accent/10">
+                <div className="flex items-center justify-between border-b border-border/50 pb-3">
+                  <div className="flex items-center gap-2">
+                    <div className={`h-2 w-2 rounded-full ${enhancedImage ? 'bg-green-500' : 'bg-gray-400'} animate-pulse`}></div>
+                    <h3 className="text-base sm:text-lg md:text-xl font-bold">Processed Image</h3>
+                  </div>
+                  {enhancedImage && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={downloadImage}
+                      className="text-xs sm:text-sm bg-gradient-to-r from-green-500/10 to-emerald-500/10 hover:from-green-500/20 hover:to-emerald-500/20 border-green-500/30 hover:border-green-500/50 transition-all"
+                    >
+                      <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                      Download
+                    </Button>
+                  )}
+                </div>
+                <div className="aspect-square rounded-xl overflow-hidden bg-gradient-to-br from-muted to-muted/50 border-2 border-border/50 shadow-inner flex items-center justify-center">
+                  {enhancedImage ? (
+                    <img
+                      src={enhancedImage}
+                      alt="Processed"
+                      className="w-full h-full object-contain hover:scale-105 transition-transform duration-300"
+                    />
+                  ) : (
+                    <div className="text-center space-y-4 sm:space-y-6 p-6">
+                      <Sparkles className="h-12 w-12 sm:h-16 sm:w-16 md:h-20 md:w-20 mx-auto text-primary animate-pulse" />
+                      <div className="space-y-2">
+                        <p className="text-sm sm:text-base md:text-lg font-semibold text-foreground">
+                          Ready to Transform
+                        </p>
+                        <p className="text-xs sm:text-sm text-muted-foreground max-w-xs mx-auto">
+                          Select an AI operation below to process your image
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </Card>
+            </div>
+
+            {/* Operations */}
+            <div className="space-y-5 sm:space-y-6">
+              <div className="text-center space-y-2">
+                <h3 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  Choose Your AI Tool
+                </h3>
+                <p className="text-sm sm:text-base text-muted-foreground">
+                  Click on any tool to transform your image instantly
+                </p>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-9 gap-3 sm:gap-4">
+                {operations.map((op) => {
+                  const Icon = op.icon;
+                  const isSelected = selectedOperation === op.id && enhancedImage;
+                  return (
+                    <Button
+                      key={op.id}
+                      onClick={() => processImage(op.id)}
+                      disabled={isProcessing}
+                      variant={isSelected ? "default" : "outline"}
+                      className={`h-auto py-4 sm:py-5 flex flex-col items-center gap-2 sm:gap-3 text-xs sm:text-sm transition-all duration-300 hover:scale-110 hover:shadow-lg relative overflow-hidden group ${
+                        isSelected 
+                          ? 'bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/30 border-primary' 
+                          : 'hover:border-primary/50 hover:bg-primary/5'
+                      }`}
+                    >
+                      <div className={`absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
+                      <Icon className={`h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 z-10 ${isSelected ? 'animate-bounce' : 'group-hover:scale-110 transition-transform'}`} />
+                      <div className="flex flex-col items-center gap-0.5 z-10">
+                        <span className="font-bold leading-tight">{op.label}</span>
+                        <span className="text-[9px] sm:text-[10px] md:text-xs opacity-70 leading-tight text-center hidden sm:block">
+                          {op.description}
+                        </span>
+                      </div>
+                      {isProcessing && selectedOperation === op.id && (
+                        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-20">
+                          <Loader2 className="h-5 w-5 sm:h-6 sm:w-6 animate-spin" />
+                        </div>
+                      )}
+                    </Button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {isProcessing && (
+              <Card className="glass-card p-6 sm:p-8 bg-gradient-to-r from-primary/10 to-accent/10 border-primary/30">
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
+                  <Loader2 className="h-8 w-8 sm:h-10 sm:w-10 animate-spin text-primary" />
+                  <div className="text-center sm:text-left space-y-1">
+                    <p className="text-base sm:text-lg md:text-xl font-bold text-foreground">
+                      AI Processing in Progress
+                    </p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      Our advanced AI is transforming your image...
                     </p>
                   </div>
-                )}
-              </div>
-            </Card>
+                </div>
+              </Card>
+            )}
           </div>
-
-          {/* Operations */}
-          <div className="space-y-3 sm:space-y-4">
-            <h3 className="text-base sm:text-lg md:text-xl font-semibold text-center">Choose an Operation</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2 sm:gap-3">
-              {operations.map((op) => {
-                const Icon = op.icon;
-                return (
-                  <Button
-                    key={op.id}
-                    onClick={() => processImage(op.id)}
-                    disabled={isProcessing}
-                    variant={selectedOperation === op.id && enhancedImage ? "default" : "outline"}
-                    className="h-auto py-3 sm:py-4 flex flex-col items-center gap-1.5 sm:gap-2 text-xs sm:text-sm hover:scale-105 transition-transform"
-                  >
-                    <Icon className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6" />
-                    <div className="flex flex-col items-center gap-0.5">
-                      <span className="font-medium leading-tight">{op.label}</span>
-                      <span className="text-[9px] sm:text-[10px] md:text-xs opacity-70 leading-tight text-center hidden sm:block">
-                        {op.description}
-                      </span>
-                    </div>
-                    {isProcessing && selectedOperation === op.id && (
-                      <Loader2 className="h-3 w-3 animate-spin absolute top-2 right-2" />
-                    )}
-                  </Button>
-                );
-              })}
-            </div>
-          </div>
-
-          {isProcessing && (
-            <div className="text-center">
-              <div className="inline-flex items-center gap-2 text-xs sm:text-sm md:text-base text-muted-foreground">
-                <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
-                Processing your image with AI...
-              </div>
-            </div>
-          )}
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
