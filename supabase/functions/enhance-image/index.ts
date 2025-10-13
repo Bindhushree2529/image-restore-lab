@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { imageUrl } = await req.json();
+    const { imageUrl, operation = "enhance" } = await req.json();
 
     if (!imageUrl) {
       return new Response(
@@ -25,7 +25,20 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    console.log("Enhancing image with AI...");
+    console.log(`Processing image with operation: ${operation}`);
+
+    // Define prompts for different operations
+    const operationPrompts: Record<string, string> = {
+      enhance: "Enhance this image to maximum quality and clarity. Make it sharper, increase resolution, improve colors and contrast, reduce noise and blur. The goal is to make the image look professional and crystal clear.",
+      colorize: "Colorize this black and white image. Add natural, realistic colors that match the scene and time period. Make it look like a naturally colored photograph with vibrant but realistic tones. Pay attention to skin tones, sky colors, and environmental details.",
+      removebg: "Remove the background from this image completely. Keep only the main subject in perfect focus and make the background completely transparent or white. Maintain all details of the subject.",
+      upscale: "Upscale this image to higher resolution with maximum quality. Add realistic details, improve texture definition, enhance sharpness and clarity. Make it look naturally high-resolution.",
+      denoise: "Remove all noise, grain, and artifacts from this image. Make it clean and smooth while preserving important details, edges, and sharpness. The result should look naturally clean.",
+      sharpen: "Sharpen this image significantly. Enhance edges, increase definition throughout, and improve overall clarity and crispness. Make details pop without creating artifacts.",
+      brighten: "Brighten and improve the lighting of this image. Enhance brightness, contrast, and exposure to make it more vibrant, clear and well-lit. Maintain natural color balance."
+    };
+
+    const prompt = operationPrompts[operation] || operationPrompts.enhance;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -41,7 +54,7 @@ serve(async (req) => {
             content: [
               {
                 type: "text",
-                text: "Enhance this image to maximum quality and clarity. Make it sharper, increase resolution, improve colors and contrast, reduce noise and blur. The goal is to make the image look professional and crystal clear."
+                text: prompt
               },
               {
                 type: "image_url",
