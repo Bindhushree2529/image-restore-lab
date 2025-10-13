@@ -35,8 +35,7 @@ serve(async (req) => {
       upscale: "Upscale this image to higher resolution with maximum quality. Add realistic details, improve texture definition, enhance sharpness and clarity. Make it look naturally high-resolution.",
       denoise: "Remove all noise, grain, and artifacts from this image. Make it clean and smooth while preserving important details, edges, and sharpness. The result should look naturally clean.",
       sharpen: "Sharpen this image significantly. Enhance edges, increase definition throughout, and improve overall clarity and crispness. Make details pop without creating artifacts.",
-      brighten: "Brighten and improve the lighting of this image. Enhance brightness, contrast, and exposure to make it more vibrant, clear and well-lit. Maintain natural color balance.",
-      removecrack: "Remove all cracks, scratches, tears, and damage from this image. Restore the image to perfect condition by intelligently filling in damaged areas. Preserve all original details while making the image look completely repaired and flawless."
+      brighten: "Brighten and improve the lighting of this image. Enhance brightness, contrast, and exposure to make it more vibrant, clear and well-lit. Maintain natural color balance."
     };
 
     const prompt = operationPrompts[operation] || operationPrompts.enhance;
